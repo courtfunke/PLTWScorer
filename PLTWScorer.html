@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Challenge Score Calculator</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #f0f0f0;
+      min-height: 100vh;
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      padding: 2rem 1rem;
+    }
+
+    .outer {
+      width: 100%;
+      max-width: 480px;
+    }
+
+    .header {
+      text-align: center;
+      font-size: 24px;
+      font-weight: 600;
+      color: #222;
+      margin-bottom: 1.5rem;
+      letter-spacing: 0.5px;
+    }
+
+    .metal-frame {
+      background: linear-gradient(145deg, #d0d0d0, #a8a8a8, #c8c8c8, #888, #bbb);
+      border-radius: 14px;
+      padding: 4px;
+      box-shadow: inset 0 1px 2px rgba(255,255,255,0.6),
+                  inset 0 -1px 2px rgba(0,0,0,0.3),
+                  0 4px 12px rgba(0,0,0,0.25);
+    }
+
+    .metal-inner {
+      background: linear-gradient(160deg, #e8e8e8, #c8c8c8, #d8d8d8);
+      border-radius: 11px;
+      padding: 1.5rem;
+      border: 1px solid rgba(255,255,255,0.5);
+    }
+
+    .field-group { margin-bottom: 1rem; }
+
+    .field-group label {
+      display: block;
+      font-size: 11px;
+      font-weight: 600;
+      color: #444;
+      margin-bottom: 5px;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+    }
+
+    .field-group input {
+      width: 100%;
+      padding: 9px 12px;
+      font-size: 15px;
+      background: rgba(255,255,255,0.85);
+      border: 1px solid rgba(0,0,0,0.2);
+      border-radius: 6px;
+      color: #222;
+      box-shadow: inset 0 2px 4px rgba(0,0,0,0.12);
+      font-family: inherit;
+    }
+
+    .field-group input:focus {
+      outline: none;
+      border-color: rgba(0,0,0,0.4);
+      background: rgba(255,255,255,0.95);
+    }
+
+    .calc-btn {
+      width: 100%;
+      margin-top: 0.5rem;
+      padding: 11px;
+      font-size: 15px;
+      font-weight: 600;
+      background: linear-gradient(145deg, #666, #444, #555);
+      color: #f0f0f0;
+      border: 1px solid #333;
+      border-radius: 8px;
+      cursor: pointer;
+      letter-spacing: 0.5px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.1);
+      font-family: inherit;
+    }
+
+    .calc-btn:hover { background: linear-gradient(145deg, #777, #555, #666); }
+    .calc-btn:active { transform: scale(0.98); }
+
+    .result-box {
+      margin-top: 1.5rem;
+      border-radius: 12px;
+      padding: 1.5rem;
+      text-align: center;
+      display: none;
+    }
+    .result-box.show { display: block; }
+    .result-box.pass { background: #2e7d32; }
+    .result-box.fail { background: #c62828; }
+
+    .result-driver {
+      font-size: 28px;
+      font-weight: 600;
+      color: #fff;
+      margin-bottom: 0.4rem;
+    }
+
+    .result-label {
+      font-size: 12px;
+      color: rgba(255,255,255,0.7);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 4px;
+    }
+
+    .result-score {
+      font-size: 56px;
+      font-weight: 600;
+      color: #fff;
+      line-height: 1;
+    }
+
+    .export-btn {
+      margin-top: 1rem;
+      padding: 9px 20px;
+      font-size: 13px;
+      font-weight: 500;
+      background: rgba(255,255,255,0.2);
+      color: #fff;
+      border: 1px solid rgba(255,255,255,0.5);
+      border-radius: 6px;
+      cursor: pointer;
+      font-family: inherit;
+    }
+    .export-btn:hover { background: rgba(255,255,255,0.3); }
+  </style>
+</head>
+<body>
+
+<div class="outer">
+  <h1 class="header">Challenge Score Calculator</h1>
+
+  <div class="metal-frame">
+    <div class="metal-inner">
+      <div class="field-group">
+        <label>Driver Name</label>
+        <input type="text" id="driverName" placeholder="Enter driver name" />
+      </div>
+      <div class="field-group">
+        <label>Block Score</label>
+        <input type="number" id="blockScore" placeholder="0" />
+      </div>
+      <div class="field-group">
+        <label>Wall Score</label>
+        <input type="number" id="wallScore" placeholder="0" />
+      </div>
+      <div class="field-group">
+        <label>Time Bonus</label>
+        <input type="number" id="timeBonus" placeholder="0" />
+      </div>
+      <button class="calc-btn" onclick="calculate()">Calculate Score</button>
+    </div>
+  </div>
+
+  <div class="result-box" id="resultBox">
+    <div class="result-driver" id="resultDriver">Driver Name</div>
+    <div class="result-label">Final Score</div>
+    <div class="result-score" id="resultScore">0</div>
+    <br>
+    <button class="export-btn" onclick="exportJPEG()">Save as JPEG</button>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script>
+  let lastResult = {};
+
+  function calculate() {
+    const driver = document.getElementById('driverName').value.trim() || 'Unknown Driver';
+    const block  = parseFloat(document.getElementById('blockScore').value) || 0;
+    const wall   = parseFloat(document.getElementById('wallScore').value)  || 0;
+    const bonus  = parseFloat(document.getElementById('timeBonus').value)  || 0;
+
+    const final = block - (wall * 5) + bonus;
+    const pass  = final > 99;
+
+    lastResult = { driver, block, wall, bonus, final, pass };
+
+    const box = document.getElementById('resultBox');
+    box.className = 'result-box show ' + (pass ? 'pass' : 'fail');
+    document.getElementById('resultDriver').textContent = driver;
+    document.getElementById('resultScore').textContent  = Math.round(final * 100) / 100;
+  }
+
+  function exportJPEG() {
+    const { driver, block, wall, bonus, final, pass } = lastResult;
+    const bg = pass ? '#2e7d32' : '#c62828';
+
+    const canvas = document.createElement('canvas');
+    const DPI = 96;
+    canvas.width  = 5 * DPI;
+    canvas.height = 7 * DPI;
+    const ctx = canvas.getContext('2d');
+
+    ctx.fillStyle = bg;
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    ctx.fillStyle = 'rgba(255,255,255,0.08)';
+    ctx.fillRect(20, 20, canvas.width - 40, canvas.height - 40);
+
+    ctx.textAlign = 'center';
+    const cx = canvas.width / 2;
+
+    ctx.fillStyle = 'rgba(255,255,255,0.6)';
+    ctx.font = '600 14px sans-serif';
+    ctx.fillText('CHALLENGE SCORE CARD', cx, 60);
+
+    ctx.fillStyle = '#fff';
+    ctx.font = '600 34px sans-serif';
+    ctx.fillText(driver, cx, 120);
+
+    ctx.strokeStyle = 'rgba(255,255,255,0.3)';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(40, 140);
+    ctx.lineTo(canvas.width - 40, 140);
+    ctx.stroke();
+
+    const rows = [
+      ['Block Score', block],
+      ['Wall Score',  wall],
+      ['Time Bonus',  bonus],
+    ];
+
+    let y = 195;
+    rows.forEach(([label, val]) => {
+      ctx.fillStyle = 'rgba(255,255,255,0.65)';
+      ctx.font = '400 13px sans-serif';
+      ctx.textAlign = 'left';
+      ctx.fillText(label.toUpperCase(), 48, y);
+
+      ctx.fillStyle = '#fff';
+      ctx.font = '600 18px sans-serif';
+      ctx.textAlign = 'right';
+      ctx.fillText(val, canvas.width - 48, y);
+
+      ctx.strokeStyle = 'rgba(255,255,255,0.15)';
+      ctx.lineWidth = 0.5;
+      ctx.beginPath();
+      ctx.moveTo(40, y + 14);
+      ctx.lineTo(canvas.width - 40, y + 14);
+      ctx.stroke();
+
+      y += 55;
+    });
+
+    ctx.textAlign = 'center';
+    ctx.fillStyle = 'rgba(255,255,255,0.6)';
+    ctx.font = '400 13px sans-serif';
+    ctx.fillText('FINAL SCORE', cx, y + 30);
+
+    ctx.fillStyle = '#fff';
+    ctx.font = '600 72px sans-serif';
+    ctx.fillText(Math.round(final * 100) / 100, cx, y + 115);
+
+    ctx.strokeStyle = 'rgba(255,255,255,0.3)';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(40, y + 10);
+    ctx.lineTo(canvas.width - 40, y + 10);
+    ctx.stroke();
+
+    canvas.toBlob(blob => {
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = (driver.replace(/\s+/g, '_') || 'score') + '_score_card.jpg';
+      a.click();
+      URL.revokeObjectURL(url);
+    }, 'image/jpeg', 0.95);
+  }
+</script>
+
+</body>
+</html>
